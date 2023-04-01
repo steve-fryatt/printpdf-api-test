@@ -32,6 +32,7 @@ LIBRARY "BASIC:Url"
 LIBRARY "BASIC:WimpError"
 LIBRARY "BASIC:Window"
 
+LIBRARY "src/DataXfer.bbt"
 LIBRARY "src/IHelp.bbt"
 LIBRARY "src/InfoWind.bbt"
 LIBRARY "src/MainWind.bbt"
@@ -71,6 +72,7 @@ CASE reason% OF
 	WHEN 2:		SYS "Wimp_OpenWindow",,b%
 	WHEN 3:		SYS "Wimp_CloseWindow",,b%
 	WHEN 6:		PROCapi_test_mouse_click(b%)
+	WHEN 7:		PROCmain_window_drag_box
 	WHEN 8:		PROCapi_test_keypress(b%)
 	WHEN 9 :	PROCapi_test_menu_selection(b%)
 	WHEN 17,18 :	PROCapi_test_process_message(b%)
@@ -141,6 +143,7 @@ REM \param message%	Pointer to the Wimp_Poll block.
 DEF PROCapi_test_process_message(message%)
 CASE b%!16 OF
 	WHEN 0		: Quit% = TRUE : REM Message_Quit
+	WHEN 2		: PROCdataxfer_message_data_save_ack(message%)
 	WHEN &502	: PROCihelp_send(message%)
 	WHEN &400C2	: PROCprotocol_message_task_initialise(message%)
 	WHEN &400C3	: PROCprotocol_message_task_close_down(message%)
@@ -154,6 +157,7 @@ REM \param message%	Pointer to the Wimp_Poll block.
 :
 DEF PROCapi_test_process_bounce(message%)
 CASE b%!16 OF
+	WHEN 1			: PROCdataxfer_message_bounce(message%)
 	WHEN &4E383, &4AF80	: PROCurl_bounce(message%) : REM Message_URIReturnResult, Message_InetSuiteOpenURL
 	OTHERWISE		: PROCprotocol_message_bounce(message%)
 ENDCASE
@@ -184,12 +188,13 @@ PROCwimperror_initialise(TaskName$, TaskSprite$)
 
 REM Initialise with the Wimp.
 
-q%!0  = &502
-q%!4  = &400C2
-q%!8  = &400C3
-q%!12 = &4E383
-q%!16 = &4AF80
-q%!20 = 0
+q%!0  = &2
+q%!4  = &502
+q%!8  = &400C2
+q%!12 = &400C3
+q%!16 = &4E383
+q%!20 = &4AF80
+q%!24 = 0
 
 SYS "Wimp_Initialise", 310, &4B534154, TaskName$, q% TO ,PrintPDFAPITestTaskHandle%
 
@@ -226,6 +231,10 @@ IconbarMenu% = b%!0
 REM Set the task handle in the main window.
 
 PROCmain_wind_set_our_task_handle(PrintPDFAPITestTaskHandle%)
+
+REM Initialise the data transfer protocol support
+
+PROCdataxfer_initialise
 
 REM Initialise the protocol support
 

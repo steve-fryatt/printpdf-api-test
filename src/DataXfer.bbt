@@ -1,0 +1,99 @@
+REM >DataXfer
+REM
+REM Copyright 2023, Stephen Fryatt (info@stevefryatt.org.uk)
+REM
+REM This file is part of PrintPDFAPITest:
+REM
+REM   http://www.stevefryatt.org.uk/risc-os
+REM
+REM Licensed under the EUPL, Version 1.2 only (the "Licence");
+REM You may not use this work except in compliance with the
+REM Licence.
+REM
+REM You may obtain a copy of the Licence at:
+REM
+REM   http://joinup.ec.europa.eu/software/page/eupl
+REM
+REM Unless required by applicable law or agreed to in
+REM writing, software distributed under the Licence is
+REM distributed on an "AS IS" basis, WITHOUT WARRANTIES
+REM OR CONDITIONS OF ANY KIND, either express or implied.
+REM
+REM See the Licence for the specific language governing
+REM permissions and limitations under the Licence.
+
+
+REM Initialise the state of the data transfer protocol.
+:
+DEF PROCdataxfer_initialise
+REM The current type of the clipboard contents.
+DataXferCurrentType% = &ADF
+
+REM The handle of the task to which we're saving the clipboard.
+DataXferSaveDestinationTask% = -1
+
+REM The last MyRef of the drag save operation.
+DataXferDragSaveMyRef% = -1
+ENDPROC
+
+
+REM Following our file icon being dragged to a save target, send a
+REM Message_DataSave to the target window and icon to see if the
+REM other task is interested in responding.
+REM
+REM \param xpos%	The X position of the save target.
+REM \param ypos%	The Y position of the save target.
+REM \param name$	The leafname of the file to be saved.
+REM \param window%	The window containing the save target.
+REM \param icon%	The icon containing the save target.
+:
+DEF PROCdataxfer_start_drag_save(xpos%, ypos%, name$, window%, icon%)
+b%!0 = (48 + LEN(name$)) AND &FC
+b%!12 = 0
+b%!16 = 1 : REM Message_DataSave
+b%!20 = window%
+b%!24 = icon%
+b%!28 = xpos%
+b%!32 = ypos%
+b%!36 = 0
+b%!40 = DataXferCurrentType%
+$(b%+44) = name$ + CHR$(0)
+SYS "Wimp_SendMessage", 18, b%, window%, icon% TO ,,DataXferSaveDestinationTask%
+
+DataXferDragSaveMyRef% = b%!8
+ENDPROC
+
+
+REM Handle an incoming Message_DataSaveAck.
+REM
+REM \param message%	Pointer to the Wimp_Poll block.
+:
+DEF PROCdataxfer_message_data_save_ack(message%)
+
+CASE message%!12 OF
+WHEN DataXferDragSaveMyRef%
+
+	message%!12 = message%!8				: REM Should we do this??
+	SYS "Wimp_SendMessage", 19, message%, message%!4	: REM Is it required??
+
+	REM Update the filename in the main window.
+
+	PROCmain_wind_set_filename(FNstring_read(message% + 44))
+ENDCASE
+ENDPROC
+
+
+REM Handle bounced messages sent as part of the various protocols.
+REM
+REM \param message%	Pointer to the Wimp_Poll data block.
+:
+DEF PROCdataxfer_message_bounce(message%)
+CASE message%!8 OF
+WHEN DataXferDragSaveMyRef%
+	REM A message which was part of an attempt to save or type
+	REM the clipboard bounced.
+
+	DataXferDragSaveMyRef% = -1
+	DataXferSaveDestinationTask% = -1
+ENDCASE
+ENDPROC

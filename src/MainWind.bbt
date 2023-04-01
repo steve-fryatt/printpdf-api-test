@@ -33,6 +33,12 @@ REM The icon handles.
 
 MainWindOurTaskHandleIcon% = 0
 MainWindPrintPDFTaskHandleIcon% = 2
+MainWindFileNameIcon% = 6
+MainWindFileSprIcon% = 8
+
+REM Initialise the filename.
+
+PROCmain_wind_set_filename("")
 ENDPROC
 
 
@@ -45,6 +51,8 @@ DEF PROCmain_wind_click(button%, icon%)
 IF button% <> 4 THEN ENDPROC
 
 CASE icon% OF
+WHEN MainWindFileSprIcon%
+	PROCmain_wind_drag_icon(MainWindHandle%, MainWindFileSprIcon%)
 ENDCASE
 ENDPROC
 
@@ -73,7 +81,7 @@ IF FNwindow_is_open(MainWindHandle%) THEN
 	PROCwindow_close(MainWindHandle%)
 ELSE
 	PROCwindow_open_centred_at(MainWindHandle%, x%, y%)
-REM	IF NOT FNicon_shaded(MainWindHandle%, MainWindFileNameIcon%) THEN PROCicon_put_caret_at_end(MainWindHandle%, MainWindFileNameIcon%)
+	PROCicon_put_caret_at_end(MainWindHandle%, MainWindFileNameIcon%)
 ENDIF
 ENDPROC
 
@@ -121,46 +129,72 @@ PROCicon_redraw(MainWindHandle%, MainWindPrintPDFTaskHandleIcon%)
 ENDPROC
 
 
-REM Reset the protocol message field.
+REM Set the filename field content.
 REM
-REM This will not refresh the display, which will require a call to
-REM one of the "set" procedures.
+REM \param filename$	The requiredfilename.
 :
-DEF PROCmain_wind_reset_proto
+DEF PROCmain_wind_set_filename(filename$)
+LOCAL name$
+
+IF filename$ = "" THEN name$ = FNmessage_lookup("DefaultFile") ELSE name$ = filename$
+
+PROCicon_set_indirected_text(MainWindHandle%, MainWindFileNameIcon%, name$)
+
+SYS "Wimp_GetCaretPosition",,q%
+IF q%!0 = MainWindHandle% THEN
+	IF filename$ = "" THEN
+		PROCicon_put_caret(q%!0, -1, 0)
+	ELSE
+		PROCicon_put_caret_at_end(q%!0, q%!4)
+	ENDIF
+ENDIF
+
+PROCicon_redraw(MainWindHandle%, MainWindFileNameIcon%)
 ENDPROC
 
 
-REM Set the protocol message field to an error message, and enlarge the
-REM window to show it.
+REM Get the current filename from the filename field.
 REM
-REM \param token$	The error message token to display.
+REM \return		The filename in the field.
 :
-DEF PROCmain_wind_set_proto_error(token$)
-LOCAL handle%
+DEF FNmain_wind_get_filename
+=FNicon_get_text(MainWindHandle%, MainWindFileNameIcon%)
 
-REM Set the protocol message field to an error message, and enlarge the
-REM window to show it.
+
+REM Process drags on a file save icon.
 REM
-REM \param token$	The error message token to display.
-REM \param handle%	The handle of the task to substitute into the message.
+REM \param window%	The handle of the window.
+REM \param icon%	The handle of the icon.
 :
-DEF PROCmain_wind_set_proto_handle_error(token$, handle%)
+DEF PROCmain_wind_drag_icon(!q%, q%!4)
+LOCAL minx%, miny%, maxx%, maxy%, xoff%
+
+SYS "Wimp_GetIconState",,q%
+
+minx% = q%!8
+miny% = q%!12
+maxx% = q%!16
+maxy% = q%!20
+
+SYS "Wimp_GetWindowState",,q%
+
+xoff% = q%!4
+
+q%!0 = minx% + xoff%
+q%!4 = miny% + q%!16
+q%!8 = maxx% + xoff%
+q%!12 = maxy% + q%!16
+
+SYS "DragASprite_Start", %11000101, 1, "file_adf", q%
 ENDPROC
 
 
-REM Set the protocol message field to a standard message.
-REM
-REM \param token$	The message token to display.
+REM Handle User Drag Box events, signalling the end of a drag
+REM for our file icon.
 :
-DEF PROCmain_wind_set_proto_message(token$)
-LOCAL handle%
-
-handle% = -1
-
-REM Set the protocol message field to a standard message.
-REM
-REM \param token$	The message token to display.
-REM \param handle%	The handle of the task to substitute into the message.
-:
-DEF PROCmain_wind_set_proto_handle_message(token$, handle%)
+DEF PROCmain_window_drag_box
+SYS "DragASprite_Stop"
+SYS "Wimp_GetPointerInfo",,b%
+IF b%!12 = MainWindHandle% THEN ENDPROC
+PROCdataxfer_start_drag_save(b%!0, b%!4, FNstring_leafname(FNmain_wind_get_filename), b%!12, b%!16)
 ENDPROC

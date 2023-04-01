@@ -32,6 +32,7 @@ PACKAGE := PrintPDFAPITest
 PACKAGELOC := Desktop
 
 SRCS := APITest.bbt	\
+	DataXfer.bbt	\
 	IHelp.bbt	\
 	InfoWind.bbt	\
 	MainWind.bbt	\

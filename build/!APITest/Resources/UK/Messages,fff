@@ -32,16 +32,20 @@ DragSave:To save, drag the file icon to a directory viewer.
 NoMemErr:Unable to claim memory to process clipboard contents.
 
 NoTask:None
+DefaultFile:TestPDF
 
 # Interactive Help Messages
 
 Help.IconBar:\TAPITest application.|MIt allows PrintPDF's external API to be tested.|M\Sopen the test window.
 
 Help.Info:\Wthe program information \w for the PrintPDFAPITest application.
-Help.Info.Email:\Wthe program information \w for the PrintPDFAPITest application.|M\Ssend an email to its maintainer.
 Help.Info.Website:\Wthe program information \w for the PrintPDFAPITest application.|M\Svisit its website for information and updates.
 
 Help.Main:\Wthe PrintPDFAPITest \w.|MIt allows PrintPDF's external API to be tested.
+Help.Main.OurHandle:\Tthe task handle of the PrintPDFAPITest application, from which the API messages will be sent.
+Help.Main.TheirHandle:\Tthe task handle of the PrintPDF application, to which the API messages will be sent.|MIt will show None if PrintPDF is not loaded.
+Help.Main.Filename:\Tthe filename that will be sent to PrintPDF.|MDrag the icon on the right to set it.
+Help.Main.OldFIlename:\Ssend a Set Filename message using the old format.
 
 Help.IconBarMenu.00:\Rto see information about PrintPDFAPITest and visit its website.
 Help.IconBarMenu.01:\Sread the PrintPDFAPITest documentation.
