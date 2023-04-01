@@ -31,7 +31,8 @@ SYS "Wimp_CreateWindow",,b% TO MainWindHandle%
 
 REM The icon handles.
 
-MainWindTaskHandleIcon% = 0
+MainWindOurTaskHandleIcon% = 0
+MainWindPrintPDFTaskHandleIcon% = 2
 ENDPROC
 
 
@@ -84,11 +85,11 @@ PROCwindow_close(MainWindHandle%)
 ENDPROC
 
 
-REM Set the task handle field to a task handle.
+REM Set our task handle field to a task handle.
 REM
 REM \param taskhandle$	The handle of the task owning the content.
 :
-DEF PROCmain_wind_set_task_handle(taskhandle%)
+DEF PROCmain_wind_set_our_task_handle(taskhandle%)
 LOCAL display$
 
 IF taskhandle% <> -1 THEN
@@ -97,8 +98,26 @@ ELSE
 	display$ = FNmessage_lookup("NoTask")
 ENDIF
 
-PROCicon_set_indirected_text(MainWindHandle%, MainWindTaskHandleIcon%, display$)
-PROCicon_redraw(MainWindHandle%, MainWindTaskHandleIcon%)
+PROCicon_set_indirected_text(MainWindHandle%, MainWindOurTaskHandleIcon%, display$)
+PROCicon_redraw(MainWindHandle%, MainWindOurTaskHandleIcon%)
+ENDPROC
+
+
+REM Set the PrintPDF task handle field to a task handle.
+REM
+REM \param taskhandle$	The handle of the task owning the content.
+:
+DEF PROCmain_wind_set_printpdf_task_handle(taskhandle%)
+LOCAL display$
+
+IF taskhandle% <> -1 THEN
+	display$ = "0x" + STR$~(taskhandle%)
+ELSE
+	display$ = FNmessage_lookup("NoTask")
+ENDIF
+
+PROCicon_set_indirected_text(MainWindHandle%, MainWindPrintPDFTaskHandleIcon%, display$)
+PROCicon_redraw(MainWindHandle%, MainWindPrintPDFTaskHandleIcon%)
 ENDPROC
 
 

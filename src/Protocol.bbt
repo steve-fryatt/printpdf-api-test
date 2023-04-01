@@ -36,7 +36,7 @@ ProtocolPrintPDFTask% = -1
 
 
 PROCprotocol_find_printpdf
-PROCmain_wind_set_task_handle(ProtocolPrintPDFTask%)
+PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
 
@@ -89,7 +89,7 @@ SYS "XOS_GenerateError", message% + 28 TO task_name$
 IF task_name$ <> ProtocolPrintPDFName$ THEN ENDPROC
 
 ProtocolPrintPDFTask% = message%!4
-PROCmain_wind_set_task_handle(ProtocolPrintPDFTask%)
+PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
 
@@ -108,7 +108,7 @@ IF message%!4 <> ProtocolPrintPDFTask% THEN ENDPROC
 REM Forget the PrintPDF task handle.
 
 ProtocolPrintPDFTask% = -1
-PROCmain_wind_set_task_handle(ProtocolPrintPDFTask%)
+PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
 

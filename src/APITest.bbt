@@ -223,6 +223,10 @@ b%!0 = InfoWindHandle%
 PROCmenu_load_templates(resources$, b%)
 IconbarMenu% = b%!0
 
+REM Set the task handle in the main window.
+
+PROCmain_wind_set_our_task_handle(PrintPDFAPITestTaskHandle%)
+
 REM Initialise the protocol support
 
 PROCprotocol_initialise
