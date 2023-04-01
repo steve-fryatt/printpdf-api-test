@@ -1,0 +1,48 @@
+# Copyright 2023, Stephen Fryatt (info@stevefryatt.org.uk)
+#
+# This file is part of PrintPDFAPITest:
+#
+#   http://www.stevefryatt.org.uk/risc-os
+#
+# Licensed under the EUPL, Version 1.2 only (the "Licence");
+# You may not use this work except in compliance with the
+# Licence.
+#
+# You may obtain a copy of the Licence at:
+#
+#   http://joinup.ec.europa.eu/software/page/eupl
+#
+# Unless required by applicable law or agreed to in
+# writing, software distributed under the Licence is
+# distributed on an "AS IS" basis, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND, either express or implied.
+#
+# See the Licence for the specific language governing
+# permissions and limitations under the Licence.
+
+TaskName:PrintPDFAPITest
+
+TaskSpr:application
+
+SupportURL:http://www.stevefryatt.org.uk/risc-os
+
+URLFailed:Could not find an application to launch the given URL.
+BadClipFileErr:The clipboard file was not found, or was an invalid object.
+DragSave:To save, drag the file icon to a directory viewer.
+NoMemErr:Unable to claim memory to process clipboard contents.
+
+NoTask:None
+
+# Interactive Help Messages
+
+Help.IconBar:\TAPITest application.|MIt allows PrintPDF's external API to be tested.|M\Sopen the test window.
+
+Help.Info:\Wthe program information \w for the PrintPDFAPITest application.
+Help.Info.Email:\Wthe program information \w for the PrintPDFAPITest application.|M\Ssend an email to its maintainer.
+Help.Info.Website:\Wthe program information \w for the PrintPDFAPITest application.|M\Svisit its website for information and updates.
+
+Help.Main:\Wthe PrintPDFAPITest \w.|MIt allows PrintPDF's external API to be tested.
+
+Help.IconBarMenu.00:\Rto see information about PrintPDFAPITest and visit its website.
+Help.IconBarMenu.01:\Sread the PrintPDFAPITest documentation.
+Help.IconBarMenu.02:\Squit PrintPDFAPITest.

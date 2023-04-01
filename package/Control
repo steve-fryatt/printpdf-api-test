@@ -1,0 +1,17 @@
+Package: PrintPDFAPITest
+Version: 0.20-1
+Section: Desktop
+Priority: Optional
+Maintainer: Stephen Fryatt <info@stevefryatt.org.uk>
+Standards-Version: 0.6.0
+Environment: any
+Licence: Free
+Description: Test PrintPDF's external control API
+ PrintPDF offers an external API to enable other applications some control
+ over the generation of PDF documents. This is implemented by way of a
+ collection of Wimp User Messages.
+
+ PrintPDFAPITest has been written to enable PrintPDF's API to be tested
+ during development.
+Homepage: http://www.stevefryatt.org.uk/risc-os/printpdf
+Components: Apps.Printing.!PrintPDFAPITest (Movable)

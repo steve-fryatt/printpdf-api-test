@@ -1,0 +1,147 @@
+REM >MainWind
+REM
+REM Copyright 2023, Stephen Fryatt (info@stevefryatt.org.uk)
+REM
+REM This file is part of PrintPDFAPITest:
+REM
+REM   http://www.stevefryatt.org.uk/risc-os
+REM
+REM Licensed under the EUPL, Version 1.2 only (the "Licence");
+REM You may not use this work except in compliance with the
+REM Licence.
+REM
+REM You may obtain a copy of the Licence at:
+REM
+REM   http://joinup.ec.europa.eu/software/page/eupl
+REM
+REM Unless required by applicable law or agreed to in
+REM writing, software distributed under the Licence is
+REM distributed on an "AS IS" basis, WITHOUT WARRANTIES
+REM OR CONDITIONS OF ANY KIND, either express or implied.
+REM
+REM See the Licence for the specific language governing
+REM permissions and limitations under the Licence.
+
+
+REM Load the main window template and initialise the variables.
+:
+DEF PROCmain_wind_initialise
+PROCtemplate_load_claim("Main", b%, 1024, -1)
+SYS "Wimp_CreateWindow",,b% TO MainWindHandle%
+
+REM The icon handles.
+
+MainWindTaskHandleIcon% = 0
+ENDPROC
+
+
+REM Handle clicks in the main window.
+REM
+REM \param button%	The mouse button used for the click.
+REM \param icon%	The icon over which the click occurred.
+:
+DEF PROCmain_wind_click(button%, icon%)
+IF button% <> 4 THEN ENDPROC
+
+CASE icon% OF
+ENDCASE
+ENDPROC
+
+
+REM Handle keypresses in the main window.
+REM
+REM \param key%		The key which was pressed.
+:
+DEF PROCmain_wind_keypress(key%)
+CASE key% OF
+WHEN 13 :
+WHEN 27 : PROCmain_wind_close
+OTHERWISE : SYS "Wimp_ProcessKey", key%
+ENDCASE
+ENDPROC
+
+
+REM Toggle the state of the main window, opening it if it
+REM is closed, or closing it if it is open.
+REM
+REM \param x%		The X coordinate for the centre of the window.
+REM \param y%		The Y coordinate for the centre of the window.
+:
+DEF PROCmain_window_toggle(x%, y%)
+IF FNwindow_is_open(MainWindHandle%) THEN
+	PROCwindow_close(MainWindHandle%)
+ELSE
+	PROCwindow_open_centred_at(MainWindHandle%, x%, y%)
+REM	IF NOT FNicon_shaded(MainWindHandle%, MainWindFileNameIcon%) THEN PROCicon_put_caret_at_end(MainWindHandle%, MainWindFileNameIcon%)
+ENDIF
+ENDPROC
+
+
+REM Close the main window.
+:
+DEF PROCmain_wind_close
+PROCwindow_close(MainWindHandle%)
+ENDPROC
+
+
+REM Set the task handle field to a task handle.
+REM
+REM \param taskhandle$	The handle of the task owning the content.
+:
+DEF PROCmain_wind_set_task_handle(taskhandle%)
+LOCAL display$
+
+IF taskhandle% <> -1 THEN
+	display$ = "0x" + STR$~(taskhandle%)
+ELSE
+	display$ = FNmessage_lookup("NoTask")
+ENDIF
+
+PROCicon_set_indirected_text(MainWindHandle%, MainWindTaskHandleIcon%, display$)
+PROCicon_redraw(MainWindHandle%, MainWindTaskHandleIcon%)
+ENDPROC
+
+
+REM Reset the protocol message field.
+REM
+REM This will not refresh the display, which will require a call to
+REM one of the "set" procedures.
+:
+DEF PROCmain_wind_reset_proto
+ENDPROC
+
+
+REM Set the protocol message field to an error message, and enlarge the
+REM window to show it.
+REM
+REM \param token$	The error message token to display.
+:
+DEF PROCmain_wind_set_proto_error(token$)
+LOCAL handle%
+
+REM Set the protocol message field to an error message, and enlarge the
+REM window to show it.
+REM
+REM \param token$	The error message token to display.
+REM \param handle%	The handle of the task to substitute into the message.
+:
+DEF PROCmain_wind_set_proto_handle_error(token$, handle%)
+ENDPROC
+
+
+REM Set the protocol message field to a standard message.
+REM
+REM \param token$	The message token to display.
+:
+DEF PROCmain_wind_set_proto_message(token$)
+LOCAL handle%
+
+handle% = -1
+
+REM Set the protocol message field to a standard message.
+REM
+REM \param token$	The message token to display.
+REM \param handle%	The handle of the task to substitute into the message.
+:
+DEF PROCmain_wind_set_proto_handle_message(token$, handle%)
+ENDPROC

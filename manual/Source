@@ -1,0 +1,94 @@
+<document title="PrintPDFAPITest">
+<define name="version" value="0.00">
+<define name="date" value="1 January 1900" length=20 align="right">
+
+
+
+
+
+<literal mode="Text">
+=============================================================================
+PrintPDFAPITest - Test PrintPDF's external control API           Version $$version$$
+
+(c) Stephen Fryatt, 2023                                 $$date$$
+=============================================================================
+
+</literal>
+
+
+
+
+
+<chapter title="License" file="License">
+
+<cite>PrintPDFAPITest</cite> is licensed under the EUPL, Version&nbsp;1.2 only (the &ldquo;Licence&rdquo;); you may not use this work except in compliance with the Licence.
+
+You may obtain a copy of the Licence at <link ref="#url http://joinup.ec.europa.eu/software/page/eupl">http://joinup.ec.europa.eu/software/page/eupl</link>
+
+Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed on an &ldquo;<strong>as is</strong>&rdquo; basis, <strong>without warranties or conditions of any kind</strong>, either express or implied.
+
+See the Licence for the specific language governing permissions and limitations under the Licence.
+
+The source for <cite>PrintPDFAPITest</cite> can be found on GitHub, at <link ref="#url https://github.com/steve-fryatt/printpdf-api-test">https://github.com/steve-fryatt/printpdf-api-test</link>
+
+</chapter>
+
+
+
+
+<chapter title="Introduction" file="Intro">
+
+<cite>PrintPDF<cite>, available from <link ref="https://github.com/steve-fryatt/printpdf">https://github.com/steve-fryatt/printpdf</cite>link>, offers an external API to enable other applications some control over the generation of PDF documents. This is implemented by way of a collection of Wimp User Messages.
+
+<cite>PrintPDFAPITest</cite> has been written to enable PrintPDF&rsquo;s API to be tested during development.
+
+</chapter>
+
+
+
+
+<chapter title="Installation" file="Install">
+
+To use <cite>PrintPDFAPITest</cite>, simply run the APITest application from a Filer window.
+
+</chapter>
+
+
+
+
+<chapter title="Using PrintPDFAPITest" file="Use">
+
+Once <cite>PrintPDFAPITest</cite> is loaded, it will install an icon on the iconbar. Click <mouse>select</mouse> on this icon to open the <window>Test PrintPDF API</window> window.
+
+</chapter>
+
+
+
+<chapter title="History" file="History">
+
+<subhead title="Test Build">
+
+<list>
+<li>An initial test build for development purposes.
+</list>
+
+</chapter>
+
+
+
+
+<literal mode="Text">
+
+Updates and Contacting Me
+-------------------------
+
+  If you have any comments about PrintPDFAPITest, or would like to
+  report any bugs that you find, you can email me at the address below.
+
+  Any updates to the application will be made available via GitHub, at
+  https://github.com/steve-fryatt/printpdf-api-test
+
+  Stephen Fryatt
+  email: info@stevefryatt.org.uk
+</literal>
+
