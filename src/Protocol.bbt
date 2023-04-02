@@ -133,6 +133,10 @@ ENDPROC
 REM Send a Message_PrintPDFControl Set Filename, using the
 REM PrintPDF task handle.
 DEF PROCprotocol_send_old_message_set_filename
+LOCAL name$
+
+name$ = FNmain_wind_get_filename
+
 b%!0 = (28 + LEN(name$)) AND &FC
 b%!12 = 0
 b%!16 = ProtocolMessagePrintPDFControl%
