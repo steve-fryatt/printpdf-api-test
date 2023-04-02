@@ -203,7 +203,7 @@ ProtocolLastMyRef% = b%!8
 APITestAcceptNullPolls% = TRUE
 
 PROCmain_wind_reset_info
-PROCmain_wind_set_info_message("SendOldSetFile")
+PROCmain_wind_set_info_message("SendNewSetFile")
 ENDPROC
 
 
