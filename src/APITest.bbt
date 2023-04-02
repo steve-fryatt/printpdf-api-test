@@ -43,9 +43,13 @@ REM Set up the basic error handling, then initialise.
 PROCwimperror_initialise("PrintPDFAPITest", "!PrintPDFAPITest")
 ON ERROR result% = FNwimperror_program : END
 
-PrintPDFAPITestTaskHandle% = -1
+APITestTaskHandle% = -1
 
 PROCapi_test_initialise
+
+REM Set TRUE to enable Null Poll events.
+
+APITestAcceptNullPolls% = FALSE
 
 REM Poll the Wimp until exit.
 
@@ -57,18 +61,21 @@ WHILE NOT Quit%
 	PROCapi_test_poll
 ENDWHILE
 
-IF PrintPDFAPITestTaskHandle% <> -1 THEN SYS "Wimp_CloseDown", PrintPDFAPITestTaskHandle%, &4B534154
+IF APITestTaskHandle% <> -1 THEN SYS "Wimp_CloseDown", APITestTaskHandle%, &4B534154
 END
 
 
 REM Handle calls to Wimp_Poll and process the responses.
 :
 DEF PROCapi_test_poll
-LOCAL reason%
+LOCAL reason%, mask%
 
-SYS "Wimp_Poll", %110001, b% TO reason%
+IF NOT APITestAcceptNullPolls% THEN mask% = %1
+
+SYS "Wimp_Poll", %110001 AND mask%, b% TO reason%
 
 CASE reason% OF
+	WHEN 0:		PROCprotocol_null_event
 	WHEN 2:		SYS "Wimp_OpenWindow",,b%
 	WHEN 3:		SYS "Wimp_CloseWindow",,b%
 	WHEN 6:		PROCapi_test_mouse_click(b%)
@@ -147,6 +154,7 @@ CASE b%!16 OF
 	WHEN &502	: PROCihelp_send(message%)
 	WHEN &400C2	: PROCprotocol_message_task_initialise(message%)
 	WHEN &400C3	: PROCprotocol_message_task_close_down(message%)
+	WHEN &5A480	: PROCprotocol_message_printpdf_control(message%)
 ENDCASE
 ENDPROC
 
@@ -194,9 +202,10 @@ q%!8  = &400C2
 q%!12 = &400C3
 q%!16 = &4E383
 q%!20 = &4AF80
-q%!24 = 0
+q%!24 = &5A480
+q%!28 = 0
 
-SYS "Wimp_Initialise", 310, &4B534154, TaskName$, q% TO ,PrintPDFAPITestTaskHandle%
+SYS "Wimp_Initialise", 310, &4B534154, TaskName$, q% TO ,APITestTaskHandle%
 
 resources$ = FNresources_find_file("Templates", &FEC)
 IF resources$ = "" THEN ERROR 255, "Unable to find Templates file"
@@ -230,7 +239,7 @@ IconbarMenu% = b%!0
 
 REM Set the task handle in the main window.
 
-PROCmain_wind_set_our_task_handle(PrintPDFAPITestTaskHandle%)
+PROCmain_wind_set_our_task_handle(APITestTaskHandle%)
 
 REM Initialise the data transfer protocol support
 

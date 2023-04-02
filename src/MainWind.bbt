@@ -35,10 +35,13 @@ MainWindOurTaskHandleIcon% = 0
 MainWindPrintPDFTaskHandleIcon% = 2
 MainWindFileNameIcon% = 6
 MainWindFileSprIcon% = 8
+MainWindSendOldSetFile% = 9
+MainWindInfoIcon% = 10
 
-REM Initialise the filename.
+REM Initialise the window contents.
 
 PROCmain_wind_set_filename("")
+PROCmain_wind_reset_info
 ENDPROC
 
 
@@ -51,6 +54,8 @@ DEF PROCmain_wind_click(button%, icon%)
 IF button% <> 4 THEN ENDPROC
 
 CASE icon% OF
+WHEN MainWindSendOldSetFile%
+	PROCprotocol_send_old_message_set_filename
 WHEN MainWindFileSprIcon%
 	PROCmain_wind_drag_icon(MainWindHandle%, MainWindFileSprIcon%)
 ENDCASE
@@ -150,6 +155,54 @@ IF q%!0 = MainWindHandle% THEN
 ENDIF
 
 PROCicon_redraw(MainWindHandle%, MainWindFileNameIcon%)
+ENDPROC
+
+
+REM Reset the information message field.
+REM
+REM This will not refresh the display, which will require a call to
+REM one of the "set" procedures.
+:
+DEF PROCmain_wind_reset_info
+PROCicon_set_indirected_text(MainWindHandle%, MainWindInfoIcon%, "")
+ENDPROC
+
+
+REM Set the information message field to an error message.
+REM
+REM \param token$	The error message token to display.
+:
+DEF PROCmain_wind_set_info_error(token$)
+PROCmain_wind_set_info_text(token$, 11)
+ENDPROC
+
+
+REM Set the information message field to a standard message.
+REM
+REM \param token$	The message token to display.
+:
+DEF PROCmain_wind_set_info_message(token$)
+PROCmain_wind_set_info_text(token$, 7)
+ENDPROC
+
+
+REM Update the information message field. Intended for internal
+REM use only.
+REM
+REM \param token$	The message token to display.
+REM \param foreground%	The foreground Wimp colour for the icon.
+:
+DEF PROCmain_wind_set_info_text(token$, foreground%)
+LOCAL background%, message$, content$, task$
+
+content$ = FNicon_get_text(MainWindHandle%, MainWindInfoIcon%)
+IF LEN(content$) > 0 THEN content$ += " "
+
+message$ = FNmessage_lookup(token$)
+IF LEN(message$) > 0 THEN PROCicon_set_indirected_text(MainWindHandle%, MainWindInfoIcon%, content$ + message$)
+
+background% = FNicon_background_colour(MainWindHandle%, MainWindInfoIcon%)
+PROCicon_set_colours(MainWindHandle%, MainWindInfoIcon%, foreground%, background%)
 ENDPROC
 
 

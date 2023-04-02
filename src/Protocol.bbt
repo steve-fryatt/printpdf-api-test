@@ -26,14 +26,30 @@ REM permissions and limitations under the Licence.
 REM Initialise the state of the protocol handler.
 :
 DEF PROCprotocol_initialise
-
-
 REM The name of the PrintPDF application
 ProtocolPrintPDFName$ = "PrintPDF"
 
 REM The task handle of the PrintPDF application
 ProtocolPrintPDFTask% = -1
 
+REM The protocol message numbers.
+ProtocolMessagePrintPDFControl% = &5A480
+
+REM The last message MyRef.
+ProtocolLastMyRef% = -1
+
+REM The protocol reason codes.
+ProtocolReasonSetFilename% = 0
+ProtocolReasonSuccess% = 1
+ProtocolReasonFailure% = 2
+
+REM The protocol operations.
+ProtocolOpNone% = 0
+ProtocolOpSendOldFilename% = 1
+
+ProtocolCurrentOp% = ProtocolOpNone%
+
+REM Initialise the PrintPDF task handle.
 
 PROCprotocol_find_printpdf
 PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
@@ -93,7 +109,6 @@ PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
 
-
 REM Handle an incoming Message_TaskCloseDown, checking to see if
 REM the passing task is the current instance of PrintPDF.
 REM
@@ -111,8 +126,33 @@ ProtocolPrintPDFTask% = -1
 PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
+REM Handle an incoming Message_PrintPDFControl, processing it
+REM accordingly
+REM
+REM \param message%	Pointer to the Wimp_Poll block.
+:
+DEF PROCprotocol_message_printpdf_control(message%)
+ENDPROC
 
 
+REM Send a Message_PrintPDFControl Set Filename, using the
+REM PrintPDF task handle.
+DEF PROCprotocol_send_old_message_set_filename
+b%!0 = (28 + LEN(name$)) AND &FC
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonSetFilename%
+$(b%+24) = name$ + CHR$(0)
+SYS "Wimp_SendMessage", 18, b%, ProtocolPrintPDFTask% TO ,,DataXferSaveDestinationTask%
+
+ProtocolCurrentOp% = ProtocolOpSendOldFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendOldSetFile")
+ENDPROC
 
 
 REM Handle bounced messages sent as part of the various protocols.
@@ -120,6 +160,35 @@ REM
 REM \param message%	Pointer to the Wimp_Poll data block.
 :
 DEF PROCprotocol_message_bounce(message%)
-CASE message%!8 OF
+CASE ProtocolCurrentOp% OF
+WHEN ProtocolOpSendOldFilename%
+	IF message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	PROCmain_wind_set_info_error("MessageBounced")
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+	APITestAcceptNullPolls% = FALSE
+ENDCASE
+ENDPROC
+
+
+REM Handle Null Events from the Wimp, which are enabled when we're running
+REM tests on the API where we don't expect to receive responses.
+:
+DEF PROCprotocol_null_event
+
+REM Disable Null events.
+
+APITestAcceptNullPolls% = FALSE
+
+REM Complete the operation.
+
+CASE ProtocolCurrentOp% OF
+WHEN ProtocolOpSendOldFilename%
+	PROCmain_wind_set_info_message("MessageAccepted")
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
 ENDCASE
 ENDPROC
