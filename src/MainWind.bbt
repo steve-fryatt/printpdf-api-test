@@ -158,6 +158,14 @@ PROCicon_redraw(MainWindHandle%, MainWindFileNameIcon%)
 ENDPROC
 
 
+REM Get the current filename from the filename field.
+REM
+REM \return		The filename in the field.
+:
+DEF FNmain_wind_get_filename
+=FNicon_get_text(MainWindHandle%, MainWindFileNameIcon%)
+
+
 REM Reset the information message field.
 REM
 REM This will not refresh the display, which will require a call to
@@ -204,14 +212,6 @@ IF LEN(message$) > 0 THEN PROCicon_set_indirected_text(MainWindHandle%, MainWind
 background% = FNicon_background_colour(MainWindHandle%, MainWindInfoIcon%)
 PROCicon_set_colours(MainWindHandle%, MainWindInfoIcon%, foreground%, background%)
 ENDPROC
-
-
-REM Get the current filename from the filename field.
-REM
-REM \return		The filename in the field.
-:
-DEF FNmain_wind_get_filename
-=FNicon_get_text(MainWindHandle%, MainWindFileNameIcon%)
 
 
 REM Process drags on a file save icon.
