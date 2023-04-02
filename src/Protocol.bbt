@@ -130,7 +130,7 @@ REM \param message%	Pointer to the Wimp_Poll block.
 DEF PROCprotocol_message_printpdf_control(message%)
 CASE ProtocolCurrentOp% OF
 WHEN ProtocolOpSendNewFilename%
-	IF message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
 	PROCmain_wind_set_info_message("ResponseReceived")
 
 	CASE message%!20 OF
@@ -214,7 +214,7 @@ REM \param message%	Pointer to the Wimp_Poll data block.
 DEF PROCprotocol_message_bounce(message%)
 CASE ProtocolCurrentOp% OF
 WHEN ProtocolOpSendOldFilename%, ProtocolOpSendNewFilename%
-	IF message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
 	PROCmain_wind_set_info_error("MessageBounced")
 
 	ProtocolCurrentOp% = ProtocolOpNone%
