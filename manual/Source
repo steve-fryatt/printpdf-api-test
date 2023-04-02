@@ -38,7 +38,7 @@ The source for <cite>PrintPDFAPITest</cite> can be found on GitHub, at <link ref
 
 <chapter title="Introduction" file="Intro">
 
-<cite>PrintPDF<cite>, available from <link ref="https://github.com/steve-fryatt/printpdf">https://github.com/steve-fryatt/printpdf</cite>link>, offers an external API to enable other applications some control over the generation of PDF documents. This is implemented by way of a collection of Wimp User Messages.
+<cite>PrintPDF</cite>, available from <link ref="https://github.com/steve-fryatt/printpdf">https://github.com/steve-fryatt/printpdf</link>, offers an external API to enable other applications to have some control over the generation of PDF documents. This is implemented by way of a collection of Wimp User Messages.
 
 <cite>PrintPDFAPITest</cite> has been written to enable PrintPDF&rsquo;s API to be tested during development.
 

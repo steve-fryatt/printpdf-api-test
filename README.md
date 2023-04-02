@@ -7,7 +7,7 @@ Test PrintPDF's external control API.
 Introduction
 ------------
 
-[PrintPDF](https://github.com/steve-fryatt/printpdf) offers an external API to enable other applications some control over the generation of PDF documents. This is implemented by way of a collection of Wimp User Messages.
+[PrintPDF](https://github.com/steve-fryatt/printpdf) offers an external API to enable other applications to have some control over the generation of PDF documents. This is implemented by way of a collection of Wimp User Messages.
 
 PrintPDFAPITest has been written to enable PrintPDF's API to be tested during development.
 
