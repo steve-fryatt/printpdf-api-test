@@ -33,10 +33,10 @@ REM The icon handles.
 
 MainWindOurTaskHandleIcon% = 0
 MainWindPrintPDFTaskHandleIcon% = 2
-MainWindFileNameIcon% = 6
-MainWindFileSprIcon% = 8
-MainWindSendOldSetFile% = 9
-MainWindInfoIcon% = 10
+MainWindFileNameIcon% = 7
+MainWindFileSprIcon% = 9
+MainWindSendOldSetFile% = 10
+MainWindInfoIcon% = 4
 
 REM Initialise the window contents.
 
