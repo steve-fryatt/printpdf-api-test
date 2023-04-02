@@ -39,7 +39,14 @@ DefaultFile:TestPDF
 SendOldSetFile:Sending old-style set filename...
 MessageAccepted:Message did not bounce.
 MessageBounced:Message bounced.
+ResponseReceived:Response received...
+NoResponse:No response received.
+BadResponse:Unexpected response received.
 BadMyRef:MyRef not as sent...
+ReasonSuccess:Success.
+ReasonFailure:Failure.
+BadReason:Unexpected reason code.
+
 
 # Interactive Help Messages
 
@@ -52,7 +59,8 @@ Help.Main:\Wthe PrintPDFAPITest \w.|MIt allows PrintPDF's external API to be tes
 Help.Main.OurHandle:\Tthe task handle of the PrintPDFAPITest application, from which the API messages will be sent.
 Help.Main.TheirHandle:\Tthe task handle of the PrintPDF application, to which the API messages will be sent.|MIt will show None if PrintPDF is not loaded.
 Help.Main.Filename:\Tthe filename that will be sent to PrintPDF.|MDrag the icon on the right to set it.
-Help.Main.OldFIlename:\Ssend a Set Filename message using the old format.
+Help.Main.OldFilename:\Ssend a Set Filename message using the old format.|MThe command is acknowledged, but no response is sent.
+Help.Main.NewFilename:\Ssend a Set Filename message using the new format.|MThe command is acknowledged by returning a response with the outcome.
 Help.Main.Info:\Ta collection of information about the most recent protocol operation to be selected.
 
 Help.IconBarMenu.00:\Rto see information about PrintPDFAPITest and visit its website.

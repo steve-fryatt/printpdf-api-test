@@ -46,6 +46,7 @@ ProtocolReasonFailure% = 2
 REM The protocol operations.
 ProtocolOpNone% = 0
 ProtocolOpSendOldFilename% = 1
+ProtocolOpSendNewFilename% = 2
 
 ProtocolCurrentOp% = ProtocolOpNone%
 
@@ -127,11 +128,39 @@ REM
 REM \param message%	Pointer to the Wimp_Poll block.
 :
 DEF PROCprotocol_message_printpdf_control(message%)
+CASE ProtocolCurrentOp% OF
+WHEN ProtocolOpSendNewFilename%
+	IF message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	PROCmain_wind_set_info_message("ResponseReceived")
+
+	CASE message%!20 OF
+	WHEN ProtocolReasonSuccess%
+		PROCmain_wind_set_info_message("ReasonSuccess")
+	WHEN ProtocolReasonFailure%
+		PROCmain_wind_set_info_message("ReasonFailure")
+	OTHERWISE
+		PROCmain_wind_set_info_message("BadReason")
+	ENDCASE
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+	APITestAcceptNullPolls% = FALSE
+
+OTHERWISE
+	IF ProtocolLastMyRef% <> -1 AND message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	PROCmain_wind_set_info_error("BadResponse")
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+	APITestAcceptNullPolls% = FALSE
+ENDCASE
 ENDPROC
 
 
 REM Send a Message_PrintPDFControl Set Filename, using the
-REM PrintPDF task handle.
+REM PrintPDF task handle. No response is expected.
 DEF PROCprotocol_send_old_message_set_filename
 LOCAL name$
 
@@ -154,13 +183,37 @@ PROCmain_wind_set_info_message("SendOldSetFile")
 ENDPROC
 
 
+REM Send a Message_PrintPDFControl Set Filename, using the
+REM PrintPDF task handle. A response is expected.
+DEF PROCprotocol_send_new_message_set_filename
+LOCAL name$
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = (28 + LEN(name$)) AND &FC
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonSetFilename%
+$(b%+24) = name$ + CHR$(0)
+SYS "Wimp_SendMessage", 18, b%, ProtocolPrintPDFTask% TO ,,DataXferSaveDestinationTask%
+
+ProtocolCurrentOp% = ProtocolOpSendNewFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendOldSetFile")
+ENDPROC
+
+
 REM Handle bounced messages sent as part of the various protocols.
 REM
 REM \param message%	Pointer to the Wimp_Poll data block.
 :
 DEF PROCprotocol_message_bounce(message%)
 CASE ProtocolCurrentOp% OF
-WHEN ProtocolOpSendOldFilename%
+WHEN ProtocolOpSendOldFilename%, ProtocolOpSendNewFilename%
 	IF message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
 	PROCmain_wind_set_info_error("MessageBounced")
 
@@ -186,6 +239,12 @@ REM Complete the operation.
 CASE ProtocolCurrentOp% OF
 WHEN ProtocolOpSendOldFilename%
 	PROCmain_wind_set_info_message("MessageAccepted")
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+WHEN ProtocolOpSendNewFilename%
+	PROCmain_wind_set_info_error("NoResponse")
 
 	ProtocolCurrentOp% = ProtocolOpNone%
 	ProtocolLastMyRef% = -1
