@@ -36,8 +36,8 @@ MainWindPrintPDFTaskHandleIcon% = 2
 MainWindInfoIcon% = 4
 MainWindFileNameIcon% = 7
 MainWindFileSprIcon% = 9
-MainWindSendOldSetFile% = 10
-MainWindSendNewSetFile% = 11
+MainWindSendSetBroadcast% = 10
+MainWindSendSetFilename% = 11
 
 REM Initialise the window contents.
 
@@ -55,10 +55,8 @@ DEF PROCmain_wind_click(button%, icon%)
 IF button% <> 4 THEN ENDPROC
 
 CASE icon% OF
-WHEN MainWindSendOldSetFile%
-	PROCprotocol_send_old_message_set_filename
-WHEN MainWindSendNewSetFile%
-	PROCprotocol_send_new_message_set_filename
+WHEN MainWindSendSetFilename%
+	PROCprotocol_send_message_set_filename(FNicon_selected(MainWindHandle%, MainWindSendSetBroadcast%))
 WHEN MainWindFileSprIcon%
 	PROCmain_wind_drag_icon(MainWindHandle%, MainWindFileSprIcon%)
 ENDCASE
