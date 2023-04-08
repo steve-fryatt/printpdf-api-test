@@ -42,14 +42,19 @@ REM The protocol reason codes.
 ProtocolReasonSetFilename% = 0
 ProtocolReasonSuccess% = 1
 ProtocolReasonFailure% = 2
+ProtocolReasonClearFilename% = 3
 
 REM The protocol error codes.
 ProtocolErrorInUse% = 0
 ProtocolErrorNullFilename% = 1
+ProtocolErrorConversion% = 2
+ProtocolErrorNotOwner% = 3
 
 REM The protocol operations.
 ProtocolOpNone% = 0
-ProtocolOpSendFilename% = 1
+ProtocolOpSendSetFilename% = 1
+ProtocolOpSendClearFilename% = 2
+
 
 ProtocolCurrentOp% = ProtocolOpNone%
 
@@ -132,7 +137,7 @@ REM \param message%	Pointer to the Wimp_Poll block.
 :
 DEF PROCprotocol_message_printpdf_control(message%)
 CASE ProtocolCurrentOp% OF
-WHEN ProtocolOpSendFilename%
+WHEN ProtocolOpSendSetFilename%
 	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
 	PROCmain_wind_set_info_message("ResponseReceived")
 
@@ -143,6 +148,25 @@ WHEN ProtocolOpSendFilename%
 			PROCmain_wind_set_info_message("FailAlreadySet")
 		WHEN ProtocolErrorNullFilename%
 			PROCmain_wind_set_info_message("FailNullFile")
+		ENDCASE
+	OTHERWISE
+		PROCmain_wind_set_info_message("BadReason")
+	ENDCASE
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+	APITestAcceptNullPolls% = FALSE
+
+WHEN ProtocolOpSendClearFilename%
+	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	PROCmain_wind_set_info_message("ResponseReceived")
+
+	CASE message%!20 OF
+	WHEN ProtocolReasonFailure%
+		CASE message%!24 OF
+		WHEN ProtocolErrorNotOwner%
+			PROCmain_wind_set_info_message("FailNotOwner")
 		ENDCASE
 	OTHERWISE
 		PROCmain_wind_set_info_message("BadReason")
@@ -184,7 +208,7 @@ b%!20 = ProtocolReasonSetFilename%
 $(b%+24) = name$ + CHR$(0)
 SYS "Wimp_SendMessage", 18, b%, destination_task%
 
-ProtocolCurrentOp% = ProtocolOpSendFilename%
+ProtocolCurrentOp% = ProtocolOpSendSetFilename%
 ProtocolLastMyRef% = b%!8
 
 APITestAcceptNullPolls% = TRUE
@@ -194,13 +218,41 @@ PROCmain_wind_set_info_message("SendSetFile")
 ENDPROC
 
 
+REM Send a Message_PrintPDFControl Clear Filename, using the
+REM PrintPDF task handle. No response is expected.
+REM
+REM \param broadacst%	Should the message be broadcast?
+:
+DEF PROCprotocol_send_message_clear_filename(broadcast%)
+LOCAL name$, destination_task%
+
+IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = 24
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonClearFilename%
+SYS "Wimp_SendMessage", 18, b%, destination_task%
+
+ProtocolCurrentOp% = ProtocolOpSendClearFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendClearFile")
+ENDPROC
+
+
 REM Handle bounced messages sent as part of the various protocols.
 REM
 REM \param message%	Pointer to the Wimp_Poll data block.
 :
 DEF PROCprotocol_message_bounce(message%)
 CASE ProtocolCurrentOp% OF
-WHEN ProtocolOpSendFilename%
+WHEN ProtocolOpSendSetFilename%, ProtocolOpSendClearFilename%
 	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
 	PROCmain_wind_set_info_error("MessageBounced")
 
@@ -224,7 +276,7 @@ APITestAcceptNullPolls% = FALSE
 REM Complete the operation.
 
 CASE ProtocolCurrentOp% OF
-WHEN ProtocolOpSendFilename%
+WHEN ProtocolOpSendSetFilename%, ProtocolOpSendClearFilename%
 	PROCmain_wind_set_info_message("MessageAccepted")
 
 	ProtocolCurrentOp% = ProtocolOpNone%

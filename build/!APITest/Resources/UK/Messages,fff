@@ -37,6 +37,7 @@ DefaultFile:TestPDF
 # Protocol Messages
 
 SendSetFile:Sending set filename...
+SendClearFile:Sending clear filename...
 MessageAccepted:Message did not bounce.
 MessageBounced:Message bounced.
 ResponseReceived:Response received...
@@ -45,6 +46,7 @@ BadResponse:Unexpected response received.
 BadMyRef:MyRef not as sent...
 FailAlreadySet:Failed: already set.
 FailNullFile:Failed: null filename.
+FailNotOwner:Failed: not owner.
 BadReason:Unexpected reason code.
 
 
@@ -58,10 +60,12 @@ Help.Info.Website:\Wthe program information \w for the PrintPDFAPITest applicati
 Help.Main:\Wthe PrintPDFAPITest \w.|MIt allows PrintPDF's external API to be tested.
 Help.Main.OurHandle:\Tthe task handle of the PrintPDFAPITest application, from which the API messages will be sent.
 Help.Main.TheirHandle:\Tthe task handle of the PrintPDF application, to which the API messages will be sent.|MIt will show None if PrintPDF is not loaded.
+Help.Main.Info:\Ta collection of information about the most recent protocol operation to be selected.
 Help.Main.Filename:\Tthe filename that will be sent to PrintPDF.|MDrag the icon on the right to set it.
 Help.Main.Set:\Ssend a Set Filename message.|MThe command is acknowledged, but no response is sent unless an error occurs.
-Help.Main.Broadcast:\Stoggle whether Set Filename messages are sent broadcast or direct to PrintPDF.
-Help.Main.Info:\Ta collection of information about the most recent protocol operation to be selected.
+Help.Main.BcastSet:\Stoggle whether Set Filename messages are sent broadcast or direct to PrintPDF.
+Help.Main.Clear:\Ssend a Clear Filename message.|MThe command is acknowledged, but no response is sent unless an error occurs.
+Help.Main.BcastClear:\Stoggle whether Clear Filename messages are sent broadcast or direct to PrintPDF.
 
 Help.IconBarMenu.00:\Rto see information about PrintPDFAPITest and visit its website.
 Help.IconBarMenu.01:\Sread the PrintPDFAPITest documentation.

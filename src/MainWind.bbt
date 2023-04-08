@@ -38,6 +38,8 @@ MainWindFileNameIcon% = 7
 MainWindFileSprIcon% = 9
 MainWindSendSetBroadcast% = 10
 MainWindSendSetFilename% = 11
+MainWindSendClearBroadcast% = 14
+MainWindSendClearFilename% = 15
 
 REM Initialise the window contents.
 
@@ -57,6 +59,8 @@ IF button% <> 4 THEN ENDPROC
 CASE icon% OF
 WHEN MainWindSendSetFilename%
 	PROCprotocol_send_message_set_filename(FNicon_selected(MainWindHandle%, MainWindSendSetBroadcast%))
+WHEN MainWindSendClearFilename%
+	PROCprotocol_send_message_clear_filename(FNicon_selected(MainWindHandle%, MainWindSendClearBroadcast%))
 WHEN MainWindFileSprIcon%
 	PROCmain_wind_drag_icon(MainWindHandle%, MainWindFileSprIcon%)
 ENDCASE
