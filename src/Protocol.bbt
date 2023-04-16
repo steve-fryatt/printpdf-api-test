@@ -130,6 +130,64 @@ ProtocolPrintPDFTask% = -1
 PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
+
+REM Send a Message_PrintPDFControl Set Filename, using the
+REM PrintPDF task handle. No response is expected.
+REM
+REM \param broadacst%	Should the message be broadcast?
+:
+DEF PROCprotocol_send_message_set_filename(broadcast%)
+LOCAL name$, destination_task%
+
+IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = (28 + LEN(name$)) AND &FC
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonSetFilename%
+$(b%+24) = name$ + CHR$(0)
+SYS "Wimp_SendMessage", 18, b%, destination_task%
+
+ProtocolCurrentOp% = ProtocolOpSendSetFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendSetFile")
+ENDPROC
+
+
+REM Send a Message_PrintPDFControl Clear Filename, using the
+REM PrintPDF task handle. No response is expected.
+REM
+REM \param broadacst%	Should the message be broadcast?
+:
+DEF PROCprotocol_send_message_clear_filename(broadcast%)
+LOCAL name$, destination_task%
+
+IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = 24
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonClearFilename%
+SYS "Wimp_SendMessage", 18, b%, destination_task%
+
+ProtocolCurrentOp% = ProtocolOpSendClearFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendClearFile")
+ENDPROC
+
+
 REM Handle an incoming Message_PrintPDFControl, processing it
 REM accordingly
 REM
@@ -186,63 +244,6 @@ OTHERWISE
 
 	APITestAcceptNullPolls% = FALSE
 ENDCASE
-ENDPROC
-
-
-REM Send a Message_PrintPDFControl Set Filename, using the
-REM PrintPDF task handle. No response is expected.
-REM
-REM \param broadacst%	Should the message be broadcast?
-:
-DEF PROCprotocol_send_message_set_filename(broadcast%)
-LOCAL name$, destination_task%
-
-IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
-
-name$ = FNmain_wind_get_filename
-
-b%!0 = (28 + LEN(name$)) AND &FC
-b%!12 = 0
-b%!16 = ProtocolMessagePrintPDFControl%
-b%!20 = ProtocolReasonSetFilename%
-$(b%+24) = name$ + CHR$(0)
-SYS "Wimp_SendMessage", 18, b%, destination_task%
-
-ProtocolCurrentOp% = ProtocolOpSendSetFilename%
-ProtocolLastMyRef% = b%!8
-
-APITestAcceptNullPolls% = TRUE
-
-PROCmain_wind_reset_info
-PROCmain_wind_set_info_message("SendSetFile")
-ENDPROC
-
-
-REM Send a Message_PrintPDFControl Clear Filename, using the
-REM PrintPDF task handle. No response is expected.
-REM
-REM \param broadacst%	Should the message be broadcast?
-:
-DEF PROCprotocol_send_message_clear_filename(broadcast%)
-LOCAL name$, destination_task%
-
-IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
-
-name$ = FNmain_wind_get_filename
-
-b%!0 = 24
-b%!12 = 0
-b%!16 = ProtocolMessagePrintPDFControl%
-b%!20 = ProtocolReasonClearFilename%
-SYS "Wimp_SendMessage", 18, b%, destination_task%
-
-ProtocolCurrentOp% = ProtocolOpSendClearFilename%
-ProtocolLastMyRef% = b%!8
-
-APITestAcceptNullPolls% = TRUE
-
-PROCmain_wind_reset_info
-PROCmain_wind_set_info_message("SendClearFile")
 ENDPROC
 
 
