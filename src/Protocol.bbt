@@ -54,7 +54,7 @@ REM The protocol operations.
 ProtocolOpNone% = 0
 ProtocolOpSendSetFilename% = 1
 ProtocolOpSendClearFilename% = 2
-
+ProtocolOpWaitForSuccess% = 3
 
 ProtocolCurrentOp% = ProtocolOpNone%
 
@@ -62,6 +62,63 @@ REM Initialise the PrintPDF task handle.
 
 PROCprotocol_find_printpdf
 PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
+ENDPROC
+
+
+REM Send a Message_PrintPDFControl Set Filename, using the
+REM PrintPDF task handle. No response is expected.
+REM
+REM \param broadacst%	Should the message be broadcast?
+:
+DEF PROCprotocol_send_message_set_filename(broadcast%)
+LOCAL name$, destination_task%
+
+IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = (28 + LEN(name$)) AND &FC
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonSetFilename%
+$(b%+24) = name$ + CHR$(0)
+SYS "Wimp_SendMessage", 18, b%, destination_task%
+
+ProtocolCurrentOp% = ProtocolOpSendSetFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendSetFile")
+ENDPROC
+
+
+REM Send a Message_PrintPDFControl Clear Filename, using the
+REM PrintPDF task handle. No response is expected.
+REM
+REM \param broadacst%	Should the message be broadcast?
+:
+DEF PROCprotocol_send_message_clear_filename(broadcast%)
+LOCAL name$, destination_task%
+
+IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
+
+name$ = FNmain_wind_get_filename
+
+b%!0 = 24
+b%!12 = 0
+b%!16 = ProtocolMessagePrintPDFControl%
+b%!20 = ProtocolReasonClearFilename%
+SYS "Wimp_SendMessage", 18, b%, destination_task%
+
+ProtocolCurrentOp% = ProtocolOpSendClearFilename%
+ProtocolLastMyRef% = b%!8
+
+APITestAcceptNullPolls% = TRUE
+
+PROCmain_wind_reset_info
+PROCmain_wind_set_info_message("SendClearFile")
 ENDPROC
 
 
@@ -131,63 +188,6 @@ PROCmain_wind_set_printpdf_task_handle(ProtocolPrintPDFTask%)
 ENDPROC
 
 
-REM Send a Message_PrintPDFControl Set Filename, using the
-REM PrintPDF task handle. No response is expected.
-REM
-REM \param broadacst%	Should the message be broadcast?
-:
-DEF PROCprotocol_send_message_set_filename(broadcast%)
-LOCAL name$, destination_task%
-
-IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
-
-name$ = FNmain_wind_get_filename
-
-b%!0 = (28 + LEN(name$)) AND &FC
-b%!12 = 0
-b%!16 = ProtocolMessagePrintPDFControl%
-b%!20 = ProtocolReasonSetFilename%
-$(b%+24) = name$ + CHR$(0)
-SYS "Wimp_SendMessage", 18, b%, destination_task%
-
-ProtocolCurrentOp% = ProtocolOpSendSetFilename%
-ProtocolLastMyRef% = b%!8
-
-APITestAcceptNullPolls% = TRUE
-
-PROCmain_wind_reset_info
-PROCmain_wind_set_info_message("SendSetFile")
-ENDPROC
-
-
-REM Send a Message_PrintPDFControl Clear Filename, using the
-REM PrintPDF task handle. No response is expected.
-REM
-REM \param broadacst%	Should the message be broadcast?
-:
-DEF PROCprotocol_send_message_clear_filename(broadcast%)
-LOCAL name$, destination_task%
-
-IF NOT broadcast% THEN destination_task% = ProtocolPrintPDFTask%
-
-name$ = FNmain_wind_get_filename
-
-b%!0 = 24
-b%!12 = 0
-b%!16 = ProtocolMessagePrintPDFControl%
-b%!20 = ProtocolReasonClearFilename%
-SYS "Wimp_SendMessage", 18, b%, destination_task%
-
-ProtocolCurrentOp% = ProtocolOpSendClearFilename%
-ProtocolLastMyRef% = b%!8
-
-APITestAcceptNullPolls% = TRUE
-
-PROCmain_wind_reset_info
-PROCmain_wind_set_info_message("SendClearFile")
-ENDPROC
-
-
 REM Handle an incoming Message_PrintPDFControl, processing it
 REM accordingly
 REM
@@ -206,6 +206,8 @@ WHEN ProtocolOpSendSetFilename%
 			PROCmain_wind_set_info_message("FailAlreadySet")
 		WHEN ProtocolErrorNullFilename%
 			PROCmain_wind_set_info_message("FailNullFile")
+		OTHERWISE
+			PROCmain_wind_set_info_error("BadError")
 		ENDCASE
 	OTHERWISE
 		PROCmain_wind_set_info_message("BadReason")
@@ -225,15 +227,41 @@ WHEN ProtocolOpSendClearFilename%
 		CASE message%!24 OF
 		WHEN ProtocolErrorNotOwner%
 			PROCmain_wind_set_info_message("FailNotOwner")
+		OTHERWISE
+			PROCmain_wind_set_info_error("BadError")
 		ENDCASE
 	OTHERWISE
-		PROCmain_wind_set_info_message("BadReason")
+		PROCmain_wind_set_info_error("BadReason")
 	ENDCASE
 
 	ProtocolCurrentOp% = ProtocolOpNone%
 	ProtocolLastMyRef% = -1
 
 	APITestAcceptNullPolls% = FALSE
+
+WHEN ProtocolOpWaitForSuccess%
+	IF message%!12 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
+	PROCmain_wind_set_info_message("ResponseReceived")
+
+	CASE message%!20 OF
+	WHEN ProtocolReasonSuccess%
+		PROCmain_wind_set_info_message("ConversionDone")
+	WHEN ProtocolReasonFailure%
+		CASE message%!24 OF
+		WHEN ProtocolErrorConversion%
+			PROCmain_wind_set_info_message("ConversionFailed")
+		OTHERWISE
+			PROCmain_wind_set_info_error("BadError")
+		ENDCASE
+	OTHERWISE
+		PROCmain_wind_set_info_error("BadReason")
+	ENDCASE
+
+	ProtocolCurrentOp% = ProtocolOpNone%
+	ProtocolLastMyRef% = -1
+
+	APITestAcceptNullPolls% = FALSE
+
 
 OTHERWISE
 	IF ProtocolLastMyRef% <> -1 AND message%!8 <> ProtocolLastMyRef% THEN PROCmain_wind_set_info_error("BadMyRef")
@@ -277,7 +305,12 @@ APITestAcceptNullPolls% = FALSE
 REM Complete the operation.
 
 CASE ProtocolCurrentOp% OF
-WHEN ProtocolOpSendSetFilename%, ProtocolOpSendClearFilename%
+WHEN ProtocolOpSendSetFilename%
+	PROCmain_wind_set_info_message("WaitingForPrint")
+
+	ProtocolCurrentOp% = ProtocolOpWaitForSuccess%
+
+WHEN ProtocolOpSendClearFilename%
 	PROCmain_wind_set_info_message("MessageAccepted")
 
 	ProtocolCurrentOp% = ProtocolOpNone%

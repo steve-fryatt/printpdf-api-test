@@ -39,6 +39,7 @@ DefaultFile:TestPDF
 SendSetFile:Sending set filename...
 SendClearFile:Sending clear filename...
 MessageAccepted:Message did not bounce.
+WaitingForPrint:Waiting for print job...
 MessageBounced:Message bounced.
 ResponseReceived:Response received...
 NoResponse:No response received.
@@ -48,6 +49,9 @@ FailAlreadySet:Failed: already set.
 FailNullFile:Failed: null filename.
 FailNotOwner:Failed: not owner.
 BadReason:Unexpected reason code.
+BadError:Unexpected error code.
+ConversionDone:Conversion complete.
+ConversionFailed:Conversion failed.
 
 
 # Interactive Help Messages
